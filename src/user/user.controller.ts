@@ -1,28 +1,35 @@
-import { Controller, Get, Param, Put, Body } from '@nestjs/common';
+import { Controller, Get, Put, Body, UseGuards, Request } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { UserService } from './user.service';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Get('/')
-  async getAllUsers(): Promise<{ message: string; data: User[] }> {
-    return this.userService.getAllUsers();
-  }
-
-  @Get('/:id')
-  async getUser(
-    @Param('id') id: string,
-  ): Promise<{ message: string; data: User }> {
-    return this.userService.getUserById(parseInt(id, 10));
-  }
-
-  @Put('/:id')
+  @UseGuards(AuthGuard)
+  @Put('/')
   async updateUser(
-    @Param('id') id: string,
+    @Request() req,
     @Body() user: User,
   ): Promise<{ message: string; data: User }> {
-    return this.userService.updateUser(parseInt(id, 10), user);
+    const userId = req['user']?.id; // Récupérer l'ID du token depuis la requête
+    return this.userService.updateUser(parseInt(userId, 10), user);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('/')
+  async getMeInfo(
+    @Request() req,
+  ): Promise<{ message: string; data: User | null }> {
+    const userId = req['user']?.id; // Récupérer l'ID du token depuis la requête
+    if (!userId) {
+      return { message: 'User ID not found in the token', data: null };
+    }
+    const userInfo = await this.userService.getMeInfo(userId);
+    return {
+      message: 'User information retrieved successfully',
+      data: userInfo.data,
+    };
   }
 }
