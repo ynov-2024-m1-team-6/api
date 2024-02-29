@@ -1,14 +1,20 @@
 import { Controller, Get, Put, Body, UseGuards, Request } from '@nestjs/common';
-import { User } from '@prisma/client';
+// import { User } from '@prisma/client';
 import { UserService } from './user.service';
 import { AuthGuard } from '../auth/auth.guard';
+import { User, UserUpdate } from './entities/user.entity';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
   @UseGuards(AuthGuard)
   @Put('/')
+  @ApiTags('User')
+  @ApiOperation({ summary: 'Update user information' })
+  @ApiBody({ type: UserUpdate })
   async updateUser(
     @Request() req,
     @Body() user: User,
@@ -19,6 +25,8 @@ export class UserController {
 
   @UseGuards(AuthGuard)
   @Get('/')
+  @ApiTags('User')
+  @ApiOperation({ summary: 'Get user information' })
   async getMeInfo(
     @Request() req,
   ): Promise<{ message: string; data: User | null }> {

@@ -42,7 +42,7 @@ export class UserService {
     id: number,
     data: User,
   ): Promise<{ message: string; data: User }> {
-    const requiredFields = ['email', 'name', 'password'];
+    const requiredFields = ['mail', 'name', 'password'];
 
     for (const field of requiredFields) {
       if (!data[field]) {
