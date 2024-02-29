@@ -6,7 +6,24 @@ const prisma = new PrismaClient();
 @Injectable()
 export class AuthService {
   constructor(private readonly jwtService: JwtService) {}
-  async register(data) {
+  async register(data: User) {
+    const requiredFields = [
+      'mail',
+      'name',
+      'password',
+      'firstName',
+      'adress',
+      'phoneNumber',
+      'zipCode',
+      'city',
+      'phoneNumber',
+    ];
+
+    for (const field of requiredFields) {
+      if (!data[field]) {
+        throw new HttpException(`Missing required field: ${field}`, 400);
+      }
+    }
     try {
       const user: User = await prisma.user.findUnique({
         where: { mail: data.mail },
@@ -30,6 +47,14 @@ export class AuthService {
   }
 
   async login(data) {
+    const requiredFields = ['mail', 'password'];
+
+    for (const field of requiredFields) {
+      if (!data[field]) {
+        throw new HttpException(`Missing required field: ${field}`, 400);
+      }
+    }
+
     try {
       const user: User = await prisma.user.findUnique({
         where: { mail: data.mail },

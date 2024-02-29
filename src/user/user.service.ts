@@ -17,6 +17,13 @@ export class UserService {
   }
 
   async getUserById(id: number): Promise<{ message: string; data: User }> {
+    const requiredFields = ['id'];
+
+    for (const field of requiredFields) {
+      if (!id) {
+        throw new HttpException(`Missing required field: ${field}`, 400);
+      }
+    }
     try {
       const user = await prisma.user.findUnique({
         where: { id },
@@ -35,6 +42,14 @@ export class UserService {
     id: number,
     data: User,
   ): Promise<{ message: string; data: User }> {
+    const requiredFields = ['email', 'name', 'password'];
+
+    for (const field of requiredFields) {
+      if (!data[field]) {
+        throw new HttpException(`Missing required field: ${field}`, 400);
+      }
+    }
+
     try {
       const existingUser = await prisma.user.findUnique({
         where: { id },
@@ -56,6 +71,14 @@ export class UserService {
   }
 
   async getMeInfo(userId: number): Promise<{ data: User }> {
+    const requiredFields = ['userId'];
+
+    for (const field of requiredFields) {
+      if (!userId) {
+        throw new HttpException(`Missing required field: ${field}`, 400);
+      }
+    }
+
     try {
       const user = await prisma.user.findUnique({
         where: { id: userId },
