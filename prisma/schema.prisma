@@ -18,7 +18,7 @@ model User {
   city        String
   phoneNumber Int
   isAdmin     Boolean            @default(false)
-  wishlist    ProductWishlist[] 
+  wishlist    String[]
 }
 
 model Product {
@@ -31,14 +31,4 @@ model Product {
   ratio       String
   thumbnail   String
   active      Boolean            @default(false)
-  wishlists   ProductWishlist[] 
-}
-
-model ProductWishlist {
-  userId    Int
-  productId Int
-  user      User     @relation(fields: [userId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
-
-  @@id([userId, productId])
 }
