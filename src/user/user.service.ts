@@ -54,4 +54,20 @@ export class UserService {
       throw error;
     }
   }
+
+  async getMeInfo(userId: number): Promise<{ data: User }> {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        throw new HttpException('User not found', 404);
+      }
+
+      return { data: user };
+    } catch (error) {
+      throw error;
+    }
+  }
 }

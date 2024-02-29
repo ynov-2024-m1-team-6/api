@@ -2,7 +2,6 @@ import { Injectable, HttpException } from '@nestjs/common';
 import { PrismaClient, User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-
 const prisma = new PrismaClient();
 @Injectable()
 export class AuthService {
