@@ -1,5 +1,5 @@
 import { Injectable, HttpException } from '@nestjs/common';
-import { PrismaClient, User } from '@prisma/client';
+import { PrismaClient, User, Product } from '@prisma/client';
 
 const prisma = new PrismaClient();
 @Injectable()
@@ -45,7 +45,7 @@ export class WishlistService {
     }
   }
 
-  async getWishlistProducts(userId: number): Promise<User['wishlist']> {
+  async getWishlistProducts(userId: number): Promise<Product[]> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });
@@ -53,7 +53,14 @@ export class WishlistService {
     if (!user) {
       throw new HttpException(`User with id ${userId} not found`, 404);
     }
-
-    return user.wishlist;
+    const wishlist = user.wishlist;
+    const wishlistProducts = await prisma.product.findMany({
+      where: {
+        id: {
+          in: wishlist.map((id) => parseInt(id)),
+        },
+      },
+    });
+    return wishlistProducts;
   }
 }

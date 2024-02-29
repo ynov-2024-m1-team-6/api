@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { WishlistService } from './wishlist.service';
 import { AuthGuard } from '../auth/auth.guard';
-import { User } from '@prisma/client';
+import { User, Product } from '@prisma/client';
 
 @Controller('wishlist')
 export class WishlistController {
@@ -27,7 +27,7 @@ export class WishlistController {
 
   @UseGuards(AuthGuard)
   @Get('/getWishlist')
-  getWishlist(@Request() req): Promise<User['wishlist']> {
+  getWishlist(@Request() req): Promise<Product[]> {
     const userId = req['user']?.id; // Récupérer l'ID du token depuis la requête
 
     return this.wishlistService.getWishlistProducts(userId);
