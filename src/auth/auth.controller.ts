@@ -1,5 +1,4 @@
 import { Body, Controller, Post } from '@nestjs/common';
-// import { User } from '@prisma/client';
 import { AuthService } from './auth.service';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { User, UserLogin, UserRegister } from 'src/user/entities/user.entity';
