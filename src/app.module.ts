@@ -4,10 +4,10 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { WishlistModule } from './wishlist/wishlist.module';
+import { CommandModule } from './command/command.module';
 import { StripeModule } from './stripe/stripe.module';
 import { CartModule } from './cart/cart.module';
-@Module({
-  imports: [AuthModule, UserModule, WishlistModule, StripeModule, CartModule],
+  imports: [AuthModule, UserModule, WishlistModule, StripeModule, CartModule, CommandModule],
   controllers: [AppController],
   providers: [AppService],
 })
