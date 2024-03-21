@@ -19,6 +19,7 @@ model User {
   phoneNumber Int
   isAdmin     Boolean            @default(false)
   wishlist    String[]
+  cart        String[]
 }
 
 model Product {
