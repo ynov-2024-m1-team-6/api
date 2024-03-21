@@ -4,25 +4,26 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = "postgres://mystore_4cbc_user:sq1zRtkwDGVUwpbnVCfmIC3CKQAs9cYp@dpg-cn3ct7gl5elc73cn6vu0-a.oregon-postgres.render.com/mystore_4cbc" //env("DATABASE_URL")
 }
 
 model User {
-  id          Int                @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   name        String
   firstName   String
-  mail        String             @unique
+  mail        String   @unique
   password    String
   adress      String
   zipCode     Int
   city        String
   phoneNumber Int
-  isAdmin     Boolean            @default(false)
+  isAdmin     Boolean  @default(false)
   wishlist    String[]
+  cart        String[]
 }
 
 model Product {
-  id          Int                @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   username    String
   description String
   price       Float
@@ -30,5 +31,20 @@ model Product {
   weight      Float
   ratio       String
   thumbnail   String
-  active      Boolean            @default(false)
+  active      Boolean   @default(false)
+  commands    Command[] @relation("CommandToProduct")
+}
+
+model Command {
+  id          Int           @id @default(autoincrement())
+  orderNumber String        @default("00000000")
+  products    Product[]     @relation("CommandToProduct")
+  date        DateTime      @default(now())
+  status      CommandStatus @default(PAID)
+}
+
+enum CommandStatus {
+  PAID
+  REIMBURSEMENT
+  REFUNDED
 }

@@ -6,9 +6,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
 
   const config = new DocumentBuilder()
-    .setTitle('My Store ')
-    .setDescription('strore API front')
-    .setVersion('1.0')
+  .setTitle('Uber Bagarre API')
+  .setDescription('Uber Bagarre API description')
+  .addBearerAuth()
+  .setVersion('1')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
