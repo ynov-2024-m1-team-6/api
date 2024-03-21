@@ -5,8 +5,9 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { WishlistModule } from './wishlist/wishlist.module';
+import { StripeModule } from './stripe/stripe.module';
 @Module({
-  imports: [AuthModule, UserModule, WishlistModule],
+  imports: [AuthModule, UserModule, WishlistModule, StripeModule],
   controllers: [AppController],
   providers: [AppService],
 })
