@@ -18,22 +18,26 @@ export class AuthService {
       'city',
       'phoneNumber',
     ];
-
+    
     for (const field of requiredFields) {
       if (!data[field]) {
         throw new HttpException(`Missing required field: ${field}`, 400);
       }
     }
+    
     try {
       const user: User = await prisma.user.findUnique({
         where: { mail: data.mail },
       });
+      
       if (user) {
         throw new HttpException('User already exists', 400);
       }
       const hashedPassword = await bcrypt.hash(data.password, 10);
+      
       data.password = hashedPassword;
 
+      
       await prisma.user.create({ data });
       const accessToken = this.generateToken({
         id: data.id,
@@ -42,6 +46,7 @@ export class AuthService {
 
       return { message: 'success', data: accessToken };
     } catch (error) {
+      
       return error;
     }
   }
