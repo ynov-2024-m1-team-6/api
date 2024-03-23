@@ -1,4 +1,13 @@
-import { Controller, Get, Put, Body, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Put,
+  Body,
+  UseGuards,
+  Request,
+  Param,
+  Delete,
+} from '@nestjs/common';
 // import { User } from '@prisma/client';
 import { UserService } from './user.service';
 import { AuthGuard } from '../auth/auth.guard';
@@ -39,5 +48,28 @@ export class UserController {
       message: 'User information retrieved successfully',
       data: userInfo.data,
     };
+  }
+
+  @Get('/admin')
+  @ApiTags('User')
+  @ApiOperation({ summary: 'Get all user' })
+  async getAllUsers(): Promise<{ message: string; data: User[] }> {
+    return this.userService.getAllUsers();
+  }
+
+  @Get('/admin/:id')
+  @ApiTags('User')
+  @ApiOperation({ summary: 'Get user by id' })
+  async getUserById(
+    @Param('id') id: string,
+  ): Promise<{ message: string; data: User }> {
+    return this.userService.getUserById(parseInt(id));
+  }
+
+  @Delete('/admin/:id')
+  @ApiTags('User')
+  @ApiOperation({ summary: 'delete user' })
+  async deleteUser(@Param('id') id: string): Promise<{ message: string }> {
+    return this.userService.deleteUser(parseInt(id));
   }
 }

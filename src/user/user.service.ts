@@ -93,4 +93,24 @@ export class UserService {
       throw error;
     }
   }
+
+  async deleteUser(id: number): Promise<{ message: string }> {
+    try {
+      const existingUser = await prisma.user.findUnique({
+        where: { id },
+      });
+
+      if (!existingUser) {
+        throw new Error('User not found for deleting');
+      }
+
+      await prisma.user.delete({
+        where: { id },
+      });
+
+      return { message: 'success' };
+    } catch (error) {
+      throw error;
+    }
+  }
 }
