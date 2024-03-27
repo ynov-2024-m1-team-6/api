@@ -7,7 +7,11 @@ const prisma = new PrismaClient();
 @Injectable()
 export class CommandService {
     async findAll() {
-        const commands = await prisma.command.findMany();
+        const commands = await prisma.command.findMany({
+            include: {
+                products: true // Inclure les produits associés à chaque commande
+            }
+        });
         return {
             message: commands.length != 0 ? 'Commands retrieved successfully' : 'No commands found',
             data: commands,
@@ -26,6 +30,9 @@ export class CommandService {
         const command =  await prisma.command.findUnique({
             where: {
                 id,
+            },
+            include: {
+                products: true // Inclure les produits associés à chaque commande
             }
         });
 
@@ -35,7 +42,30 @@ export class CommandService {
           };
     }
 
-    async create(command: Command) {
+    async findByOrderNumber(orderNumber: string) {
+        try {
+            const command = await prisma.command.findFirst({
+                where: {
+                    orderNumber,
+                },
+                include: {
+                    products: true // Inclure les produits associés à chaque commande
+                }
+            });
+    
+            return {
+                message: command != null ? 'Command found successfully' : 'Command not found',
+                data: command,
+              };
+        } catch (error) {
+            return {
+                message: 'An error occurred during command retrieval.',
+                data: null,
+            };
+            }
+        }
+
+    async create(command: Command, userId: number) {
         
         // If the request body is empty, return an error message
         if (!command || Object.keys(command).length === 0) {
@@ -63,8 +93,9 @@ export class CommandService {
                     // date: new Date(),
                     status: command.status,
                     products: {
-                        create: command.products
-                    }
+                        connect: command.products.map(productId => ({ id: productId.id }))
+                    },
+                    userId: userId
                 }
             });
     
@@ -73,6 +104,8 @@ export class CommandService {
                 data: newCommand,
               };
         } catch (error) {
+            console.log(error);
+            
             return {
                 message: 'An error occurred during command creation.',
                 data: null,

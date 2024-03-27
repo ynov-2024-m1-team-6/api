@@ -28,11 +28,14 @@ export class Command {
     @ApiProperty({ type: () => [Product] }) // Spécifiez le type du tableau de produits
     // @IsNotEmpty()
     products?: Product[]; // Tableau de produits associés à cette commande
+
+    @ApiProperty({ description: "User ID" })
+    userId?: number;
 }
 
-export class CreateCommand extends OmitType(Command, ['id', 'orderNumber', 'status', 'date'] as const) {}
+export class CreateCommand extends OmitType(Command, ['id', 'orderNumber', 'status', 'date', 'userId'] as const) {}
 
-export class UpdateCommand extends OmitType(Command, ['id', 'status', 'date'] as const) {}
+export class UpdateCommand extends OmitType(Command, ['id', 'status', 'date', 'userId'] as const) {}
 
 export enum CommandStatus {
     PAID = 'PAID',
