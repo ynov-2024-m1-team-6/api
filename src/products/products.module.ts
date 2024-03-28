@@ -20,7 +20,7 @@ export class ProductsModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(ProductsMiddleware)
-      .exclude('products/getProducts', 'products/getProduct') //ne pas appliquer le middleware sur les routes de recherche de produits
+      .exclude('products/getProducts', 'products/getProduct', 'products/getSpecificProduct') //ne pas appliquer le middleware sur les routes de recherche de produits
       .forRoutes('products');
   }
 }
