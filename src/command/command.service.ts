@@ -47,6 +47,40 @@ export class CommandService {
     };
   }
 
+  async findAllCommandsByUserId(userId: number) {
+    const commands = await prisma.command.findMany({
+      where: {
+        userId: userId,
+      },
+      include: {
+        products: true,
+      },
+    });
+    return {
+      message:
+        commands.length != 0
+          ? 'Commands retrieved successfully'
+          : 'No commands found',
+      data: commands,
+    };
+  }
+
+  async findById(id: number) {
+    const command = await prisma.command.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        products: true,
+      },
+    });
+    return {
+      message:
+        command != null ? 'Command found successfully' : 'Command not found',
+      data: command,
+    };
+  }
+
   async findByFilter(filter: any) {
     try {
       const command = await prisma.command.findMany({
@@ -55,7 +89,6 @@ export class CommandService {
           products: true,
         },
       });
-
       return {
         message:
           command != null ? 'Command found successfully' : 'Command not found',
