@@ -27,8 +27,8 @@ export class CommandController {
 
     @Get('getCommand')
     @ApiOperation({ summary: 'Get command by ID', description: 'Retrieves a command by its ID.' })
-    getOne(@Query('id') id: number) {
-        return this.commandService.findOne(id);
+    getOne(@Query('id') id: string) {
+        return this.commandService.findOne(parseInt(id));
     }
 
     @Post('create')
@@ -55,12 +55,8 @@ export class CommandController {
           return { message: 'User ID not found in the token', data: null };
         }
 
-        if (parseInt(id) !== userId) {
-            return { message: 'You are not authorized to update this command', data: null };
-        }
-        //a finir
 
-        return this.commandService.update(parseInt(id), updatedCommand);
+        return this.commandService.update(parseInt(id), updatedCommand, userId);
     }
 
     @Delete('delete')

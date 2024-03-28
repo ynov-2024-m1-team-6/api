@@ -43,6 +43,12 @@ export class CommandService {
     }
 
     async findByOrderNumber(orderNumber: string) {
+        if (orderNumber === "00000000") {
+            return {
+                message: 'Invalid order number. Please provide a valid order number.',
+                data: null,
+            };
+        }
         try {
             const command = await prisma.command.findFirst({
                 where: {
@@ -90,7 +96,6 @@ export class CommandService {
             const newCommand = await prisma.command.create({
                 data: {
                     orderNumber: command.orderNumber,
-                    // date: new Date(),
                     status: command.status,
                     products: {
                         connect: command.products.map(productId => ({ id: productId.id }))
@@ -114,7 +119,7 @@ export class CommandService {
         
     }
 
-    async update(id: number, updatedCommand: Command) {
+    async update(id: number, updatedCommand: Command, userId: number) {
         // If the ID is not a number, return an error message
         if (isNaN(id)) {
             return {
@@ -143,9 +148,29 @@ export class CommandService {
         }
 
         try {
-            const command = await prisma.command.update({
+            const command = await prisma.command.findUnique({
                 where: {
                     id,
+                }
+            });
+
+            if (!command) {
+                return {
+                    message: 'Command not found',
+                    data: null,
+                };
+            }
+
+            if (command.userId !== userId) {
+                return {
+                    message: 'You are not authorized to update this command',
+                    data: null,
+                };
+            }
+
+            const commandUpdated = await prisma.command.update({
+                where: {
+                    id: command.id,
                 },
                 data: {
                     orderNumber: updatedCommand.orderNumber,
@@ -154,12 +179,15 @@ export class CommandService {
                     }
                 }
             });
+            console.log('test7');
 
             return {
-                message: command != null ? 'Command updated successfully' : 'Command not found',
+                message: commandUpdated != null ? 'Command updated successfully' : 'Command not found',
                 data: command,
             };
         } catch (error) {
+            console.log(error);
+            
             return {
                 message: 'An error occurred during command update.',
                 data: null,
