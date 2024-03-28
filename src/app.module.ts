@@ -8,6 +8,7 @@ import { CommandModule } from './command/command.module';
 import { StripeModule } from './stripe/stripe.module';
 import { CartModule } from './cart/cart.module';
 import { ProductsModule } from './products/products.module';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
@@ -18,6 +19,20 @@ import { ProductsModule } from './products/products.module';
     StripeModule,
     CartModule,
     ProductsModule,
+    MailerModule.forRoot({
+      transport: {
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        auth: {
+          user: 'uberbagarreynov@gmail.com',
+          pass: 'tpqfjtrqmbxkxgem',
+        },
+      },
+      defaults: {
+        from: 'uberbagarre@gmail.com',
+      },
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

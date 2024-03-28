@@ -2,10 +2,15 @@ import { Injectable, HttpException } from '@nestjs/common';
 import { PrismaClient, User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { MailService } from '../mail/mail.service';
 const prisma = new PrismaClient();
 @Injectable()
 export class AuthService {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private jwtService: JwtService,
+    private mailerService: MailService,
+  ) {}
+
   async register(data: User) {
     const requiredFields = [
       'mail',
@@ -18,35 +23,43 @@ export class AuthService {
       'city',
       'phoneNumber',
     ];
-    
+
     for (const field of requiredFields) {
       if (!data[field]) {
         throw new HttpException(`Missing required field: ${field}`, 400);
       }
     }
-    
+
     try {
       const user: User = await prisma.user.findUnique({
         where: { mail: data.mail },
       });
-      
+
       if (user) {
         throw new HttpException('User already exists', 400);
       }
       const hashedPassword = await bcrypt.hash(data.password, 10);
-      
+
       data.password = hashedPassword;
 
-      
       await prisma.user.create({ data });
       const accessToken = this.generateToken({
         id: data.id,
         isAdmin: data.isAdmin,
       });
 
+      try {
+        await this.mailerService.sendWelcomeEmail({
+          firstName: data.firstName,
+          lastName: data.name,
+          mail: data.mail,
+        });
+      } catch (error) {
+        return error;
+      }
+
       return { message: 'success', data: accessToken };
     } catch (error) {
-      
       return error;
     }
   }
