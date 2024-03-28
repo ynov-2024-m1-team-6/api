@@ -1,6 +1,5 @@
 import { Injectable, HttpException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client'; // Assurez-vous d'importer correctement le service Prisma
-import { parse } from 'path';
 import { CommandService } from 'src/command/command.service';
 import { ProductsService } from 'src/products/products.service';
 import Stripe from 'stripe';
@@ -73,9 +72,9 @@ export class StripeService {
       mode: 'payment',
       metadata: { commandId: command.data['id'] },
       success_url: 'https://localhost:3000/stripe/webhook',
-      cancel_url: 'https://example.com/cancel',
+      cancel_url: 'https://uber-bagarre.vercel.app/payment/failed',
     });
-    return session;
+    return session.url;
   }
 
   async refundPayment(paymentIntentId: string) {
