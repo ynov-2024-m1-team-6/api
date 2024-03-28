@@ -1,5 +1,7 @@
 import { Injectable, HttpException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client'; // Assurez-vous d'importer correctement le service Prisma
+import { CommandService } from 'src/command/command.service';
+import { ProductsService } from 'src/products/products.service';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET);
@@ -7,47 +9,51 @@ const prisma = new PrismaClient();
 
 @Injectable()
 export class StripeService {
-  async createSession(email: string, commandId: number) {
+  constructor(
+    private commandService: CommandService,
+    private productsService: ProductsService,
+  ) {}
+  async createSession(email: string, id: [number], userId: number) {
     if (!email) {
       throw new HttpException('Email is required.', 400);
     }
-
-    if (!commandId) {
-      throw new HttpException('Command ID is required.', 400);
+    if (!id) {
+      throw new HttpException('Product ID is required.', 400);
     }
-    const command = await prisma.command.findUnique({
+    if (!userId) {
+      throw new HttpException('User ID is required.', 400);
+    }
+
+    const productPromises = await prisma.product.findMany({
       where: {
-        id: commandId,
+        id: {
+          in: id,
+        },
       },
-      include: { products: true },
     });
-    if (!command) {
-      throw new HttpException('Command not found.', 404);
-    }
-    const productPromises = command.products.map(async (product) => {
-      return await prisma.product.findUnique({
-        where: {
-          id: product.id,
-        },
-        select: {
-          id: true,
-          description: true,
-          price: true,
-          username: true,
-        },
-      });
-    });
-
     const products = await Promise.all(productPromises);
     if (products.length === 0) {
       throw new HttpException('No products found.', 404);
     }
+    const commandData = {
+      email,
+      products: products,
+    };
+    const command = await this.commandService.create(commandData, userId);
+    console.log(command);
     const totalPrice = products
       .map((product) => product.price)
       .reduce((a, b) => a + b)
       .toFixed(2);
     const quantity = products.length;
     const price = parseInt(totalPrice) * 100;
+
+    const filteredProducts = products.map((product) => {
+      id: product.id;
+      description: product.description;
+      price: product.price;
+      username: product.username;
+    });
 
     console.log(products);
     console.log(totalPrice);
