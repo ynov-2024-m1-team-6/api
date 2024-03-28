@@ -18,11 +18,12 @@ export class StripeController {
     @Request() req,
     @Body() data: { email: string; price: number; quantity: number },
   ) {
-    const userId = req['user']?.id;
+    //const userId = req['user']?.id;
     return this.stripeService.createSession(
       data.email,
       data.price,
       data.quantity,
+      1,
     );
   }
 }
