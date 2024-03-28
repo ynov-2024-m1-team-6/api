@@ -46,100 +46,135 @@ export class CommandService {
     };
   }
 
+  async findAllCommandsByUserId(userId: number) {
+    const commands = await prisma.command.findMany({
+      where: {
+        userId: userId,
+      },
+      include: {
+        products: true,
+      },
+    });
+    return {
+      message:
+        commands.length != 0
+          ? 'Commands retrieved successfully'
+          : 'No commands found',
+      data: commands,
+    };
+  }
+
+  async findById(id: number) {
+    const command = await prisma.command.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        products: true,
+      },
+    });
+    return {
+      message:
+        command != null ? 'Command found successfully' : 'Command not found',
+      data: command,
+    };
+  }
+
   async findByFilter(filter: any) {
     try {
-        const command = await prisma.command.findMany({
-            where: filter,
-            include: {
-                products: true
-            }
-        });
-
-        return {
-            message: command != null ? 'Command found successfully' : 'Command not found',
-            data: command,
-          };
+      const command = await prisma.command.findMany({
+        where: filter,
+        include: {
+          products: true,
+        },
+      });
+      return {
+        message:
+          command != null ? 'Command found successfully' : 'Command not found',
+        data: command,
+      };
     } catch (error) {
-        return {
-            message: 'An error occurred during command retrieval.',
-            data: null,
-        };
-        }
+      return {
+        message: 'An error occurred during command retrieval.',
+        data: null,
+      };
     }
+  }
 
-async create(command: Command, userId: number) {
-    
+  async create(command: Command, userId: number) {
     // If the request body is empty, return an error message
     if (!command || Object.keys(command).length === 0) {
-        return {
-            message: 'Command creation failed. Request body is empty.',
-            data: null,
-        };
+      return {
+        message: 'Command creation failed. Request body is empty.',
+        data: null,
+      };
     }
 
     // Check if all required fields are present in the request body
-    const missingFields = requiredFields.filter(field => !(field in command));
-    
+    const missingFields = requiredFields.filter((field) => !(field in command));
+
     // If any required fields are missing, return an error message
     if (missingFields.length > 0) {
-        return {
-            message: `Command creation failed. Required fields are missing`,
-            data: missingFields,
-        };
+      return {
+        message: `Command creation failed. Required fields are missing`,
+        data: missingFields,
+      };
     }
-    
+
     try {
-        const user = await prisma.user.findUnique({
-            where: {
-                id: userId,
-            }
-        });
+      const user = await prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+      });
 
-        if (!user) {
-            return {
-                message: 'User not found',
-                data: null,
-            };
-        }
-
-        const newCommand = await prisma.command.create({
-            data: {
-                orderNumber: command.orderNumber,
-                status: command.status,
-                products: {
-                    connect: command.products.map(productId => ({ id: productId.id }))
-                },
-                userId: userId,
-                email: user.mail,
-            },
-            include: {
-                products: true // Inclure les produits associés à chaque commande
-            }
-        });
-
-        const commandN = await prisma.command.update({
-            where: {
-                id: newCommand.id
-            },
-            data: {
-                orderNumber: `CMD-${newCommand.id}`
-            },
-            include: {
-                products: true
-            }
-        })
-
+      if (!user) {
         return {
-            message: 'Command created successfully',
-            data: commandN,
-          };
-    } catch (error) {
-        return {
-            message: 'An error occurred during command creation.',
-            data: null,
+          message: 'User not found',
+          data: null,
         };
+      }
+
+      const newCommand = await prisma.command.create({
+        data: {
+          orderNumber: command.orderNumber,
+          status: command.status,
+          products: {
+            connect: command.products.map((productId) => ({
+              id: productId.id,
+            })),
+          },
+          userId: userId,
+          email: user.mail,
+        },
+        include: {
+          products: true, // Inclure les produits associés à chaque commande
+        },
+      });
+
+      const commandN = await prisma.command.update({
+        where: {
+          id: newCommand.id,
+        },
+        data: {
+          orderNumber: `CMD-${newCommand.id}`,
+        },
+        include: {
+          products: true,
+        },
+      });
+
+      return {
+        message: 'Command created successfully',
+        data: commandN,
+      };
+    } catch (error) {
+      return {
+        message: 'An error occurred during command creation.',
+        data: null,
+      };
     }
-}
+  }
 
   async reimbursement(id: number, userId: number) {
     // If the ID is not a number, return an error message
