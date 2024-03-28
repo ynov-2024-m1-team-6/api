@@ -1,8 +1,9 @@
+/* eslint-disable prettier/prettier */
 import { Injectable, HttpException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client'; // Assurez-vous d'importer correctement le service Prisma
-import { parse } from 'path';
 import { CommandService } from 'src/command/command.service';
 import { ProductsService } from 'src/products/products.service';
+import { MailService } from 'src/mail/mail.service';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET);
@@ -13,6 +14,7 @@ export class StripeService {
   constructor(
     private commandService: CommandService,
     private productsService: ProductsService,
+    private mailService: MailService,
   ) {}
   async createSession(email: string, id: [number], userId: number) {
     if (!email) {
@@ -126,6 +128,23 @@ export class StripeService {
         status: 'PAID',
         orderNumber: payment.payment_intent,
       },
+      include: {
+        products: true,
+      },
+    });
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: command.userId,
+      },
+    });
+
+    await this.mailService.sendOrderConfirmationEmail({
+      firstName: user.firstName,
+      lastName: user.name,
+      email: user.mail,
+      orderNumber: command.orderNumber,
+      products: command.products,
     });
     //envoyer le mail de confirmation
   }

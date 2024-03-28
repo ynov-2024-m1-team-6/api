@@ -20,7 +20,7 @@ export class MailController {
       firstName: string;
       lastName: string;
       email: string;
-      orderNumber: number;
+      orderNumber: string;
       products: any[];
     },
   ) {
@@ -34,7 +34,7 @@ export class MailController {
       firstName: string;
       lastName: string;
       email: string;
-      orderNumber: number;
+      orderNumber: string;
     },
   ) {
     return this.mailService.sendRefundRequestEmail(data);
