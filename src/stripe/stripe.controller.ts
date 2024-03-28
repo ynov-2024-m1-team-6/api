@@ -4,25 +4,30 @@ import {
   UseGuards,
   Request,
   Body,
-  Get,
-  Delete,
   RawBodyRequest,
-  Response,
 } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { StripeService } from './stripe.service';
+import { AuthGuard } from 'src/auth/auth.guard';
 
+@ApiBearerAuth()
 @Controller('stripe')
-export class StripeController {
+export class StripeControl {
   constructor(private stripeService: StripeService) {}
 
+  @UseGuards(AuthGuard)
   @Post('/session')
   async createSession(
     @Request() req,
     @Body()
-    data: { email: string; commandId: number },
+    data: {
+      email: string;
+      id: [number];
+      address: { address: string; city: string; postal_code: number };
+    },
   ) {
     const userId = req['user']?.id;
-    return this.stripeService.createSession(data.email, data.commandId);
+    return this.stripeService.createSession(data.email, data.id, userId);
   }
 
   @Post('/refund')
