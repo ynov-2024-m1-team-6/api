@@ -71,7 +71,7 @@ export class StripeService {
         },
       ],
       mode: 'payment',
-      metadata: { commandId: command.data['id'] },
+      metadata: { commandId: command.data['id'], order: 'order' },
       success_url: 'https://localhost:3000/stripe/webhook',
       cancel_url: 'https://example.com/cancel',
     });
@@ -117,16 +117,19 @@ export class StripeService {
   }
 
   private async handleSuccessfulPayment(payment) {
-    const commandId = parseInt(payment.metadata.commandId);
-    const command = await prisma.command.update({
-      where: {
-        id: commandId,
-      },
-      data: {
-        status: 'PAID',
-        orderNumber: payment.payment_intent,
-      },
-    });
+    if (payment.metadata.order === 'order') {
+      const commandId = parseInt(payment.metadata.commandId);
+      const command = await prisma.command.update({
+        where: {
+          id: commandId,
+        },
+        data: {
+          status: 'PAID',
+          orderNumber: payment.payment_intent,
+        },
+      });
+    }
+    return null;
     //envoyer le mail de confirmation
   }
 
