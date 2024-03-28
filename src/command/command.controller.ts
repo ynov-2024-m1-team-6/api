@@ -4,10 +4,8 @@ import {
   Post,
   Body,
   Put,
-  Delete,
   Query,
   Request,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -18,7 +16,6 @@ import {
 } from '@nestjs/swagger';
 import { CreateCommand, UpdateCommand } from './entities/command.entity';
 import { CommandService } from './command.service';
-import { AuthGuard } from 'src/auth/auth.guard';
 
 @ApiBearerAuth()
 @Controller('command')
@@ -28,7 +25,6 @@ export class CommandController {
 
     @Get("getCommands")
     @ApiOperation({ summary: 'Get all commands', description: 'Retrieves all commands.' })
-    @UseGuards(AuthGuard)
     getAllCommands() {
         return this.commandService.findAll();
     }
@@ -37,7 +33,6 @@ export class CommandController {
     @ApiOperation({ summary: 'Get command by filter', description: 'Retrieves a command by the filter specified.' })
     @ApiQuery({ name: 'name', required: true, type: 'string' })
     @ApiQuery({ name: 'value', required: true, type: 'string' })
-    @UseGuards(AuthGuard)
     getCommandByFilter(@Query('name') name: string, @Query('value') value: string ){
         const filter = {
             [name]: value
@@ -47,7 +42,6 @@ export class CommandController {
 
     @Get('getCommand')
     @ApiOperation({ summary: 'Get command by ID', description: 'Retrieves a command by its ID.' })
-    @UseGuards(AuthGuard)
     getOne(@Query('id') id: string) {
         return this.commandService.findOne(parseInt(id));
     }
@@ -55,7 +49,6 @@ export class CommandController {
     @Post('create')
     @ApiOperation({ summary: 'Create new command', description: 'Creates a new command.' })
     @ApiBody({ type: CreateCommand })
-    @UseGuards(AuthGuard)
     create(@Body() command: CreateCommand, @Request() req){
         const userId = req['user']?.id;
         if (!userId) {
@@ -69,7 +62,6 @@ export class CommandController {
     @ApiOperation({ summary: 'Update command', description: 'Updates an existing command.' })
     @ApiQuery({ name: 'id', description: 'ID of the command to update' })
     @ApiBody({ type: UpdateCommand })
-    @UseGuards(AuthGuard)
     update(@Query('id') id: string, @Body() updatedCommand: UpdateCommand, @Request() req){
         const userId = req['user']?.id;
         if (!userId) {
@@ -85,7 +77,7 @@ export class CommandController {
         description: 'Refunds an existing command by its ID.',
     })
     @ApiQuery({ name: 'id', description: 'ID of the command to refund' })
-    reimbursement(@Query('id') id: string) {
+    reimbursement(@Query('id') id: string, @Request() req) {
         return this.commandService.reimbursement(parseInt(id));
     }
 }

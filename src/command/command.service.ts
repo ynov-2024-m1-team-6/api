@@ -164,6 +164,13 @@ async create(command: Command, userId: number) {
         };
       }
 
+    //   if (command.userId !== userId) {
+    //     return {
+    //       message: 'You are not authorized to refund this command',
+    //       data: null,
+    //     };
+    //   }
+
       const commandRefunded = await prisma.command.update({
         where: {
           id: command.id,
