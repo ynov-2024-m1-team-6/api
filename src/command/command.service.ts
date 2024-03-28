@@ -141,7 +141,7 @@ async create(command: Command, userId: number) {
     }
 }
 
-  async reimbursement(id: number) {
+  async reimbursement(id: number, userId: number) {
     // If the ID is not a number, return an error message
     if (isNaN(id)) {
       return {
@@ -164,12 +164,12 @@ async create(command: Command, userId: number) {
         };
       }
 
-    //   if (command.userId !== userId) {
-    //     return {
-    //       message: 'You are not authorized to refund this command',
-    //       data: null,
-    //     };
-    //   }
+      if (command.userId !== userId) {
+        return {
+          message: 'You are not authorized to refund this command',
+          data: null,
+        };
+      }
 
       const commandRefunded = await prisma.command.update({
         where: {

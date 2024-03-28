@@ -6,6 +6,7 @@ import {
   Put,
   Query,
   Request,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -16,6 +17,7 @@ import {
 } from '@nestjs/swagger';
 import { CreateCommand, UpdateCommand } from './entities/command.entity';
 import { CommandService } from './command.service';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @ApiBearerAuth()
 @Controller('command')
@@ -25,7 +27,7 @@ export class CommandController {
 
     @Get("getCommands")
     @ApiOperation({ summary: 'Get all commands', description: 'Retrieves all commands.' })
-    getAllCommands() {
+    async getAllCommands() {
         return this.commandService.findAll();
     }
 
@@ -33,7 +35,7 @@ export class CommandController {
     @ApiOperation({ summary: 'Get command by filter', description: 'Retrieves a command by the filter specified.' })
     @ApiQuery({ name: 'name', required: true, type: 'string' })
     @ApiQuery({ name: 'value', required: true, type: 'string' })
-    getCommandByFilter(@Query('name') name: string, @Query('value') value: string ){
+    async getCommandByFilter(@Query('name') name: string, @Query('value') value: string ){
         const filter = {
             [name]: value
         };
@@ -42,17 +44,18 @@ export class CommandController {
 
     @Get('getCommand')
     @ApiOperation({ summary: 'Get command by ID', description: 'Retrieves a command by its ID.' })
-    getOne(@Query('id') id: string) {
+    async getOne(@Query('id') id: string) {
         return this.commandService.findOne(parseInt(id));
     }
 
     @Post('create')
     @ApiOperation({ summary: 'Create new command', description: 'Creates a new command.' })
     @ApiBody({ type: CreateCommand })
-    create(@Body() command: CreateCommand, @Request() req){
-        const userId = req['user']?.id;
+    @UseGuards(AuthGuard)
+    async create(@Body() command: CreateCommand, @Request() req){
+        const userId = req['user']?.id; // Récupérer l'ID du token depuis la requête
         if (!userId) {
-          return { message: 'User ID not found in the token', data: null };
+        return { message: 'User ID not found in the token', data: null };
         }
         
         return this.commandService.create(command, userId);
@@ -62,7 +65,8 @@ export class CommandController {
     @ApiOperation({ summary: 'Update command', description: 'Updates an existing command.' })
     @ApiQuery({ name: 'id', description: 'ID of the command to update' })
     @ApiBody({ type: UpdateCommand })
-    update(@Query('id') id: string, @Body() updatedCommand: UpdateCommand, @Request() req){
+    @UseGuards(AuthGuard)
+    async update(@Query('id') id: string, @Body() updatedCommand: UpdateCommand, @Request() req){
         const userId = req['user']?.id;
         if (!userId) {
           return { message: 'User ID not found in the token', data: null };
@@ -77,7 +81,12 @@ export class CommandController {
         description: 'Refunds an existing command by its ID.',
     })
     @ApiQuery({ name: 'id', description: 'ID of the command to refund' })
-    reimbursement(@Query('id') id: string, @Request() req) {
-        return this.commandService.reimbursement(parseInt(id));
+    @UseGuards(AuthGuard)
+    async reimbursement(@Query('id') id: string, @Request() req){
+        const userId = req['user']?.id;
+        if (!userId) {
+          return { message: 'User ID not found in the token', data: null };
+        }
+        return this.commandService.reimbursement(parseInt(id), userId);
     }
 }
