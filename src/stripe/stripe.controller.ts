@@ -12,7 +12,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 
 @ApiBearerAuth()
 @Controller('stripe')
-export class StripeControl {
+export class StripeController {
   constructor(private stripeService: StripeService) {}
 
   @UseGuards(AuthGuard)
