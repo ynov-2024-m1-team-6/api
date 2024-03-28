@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client'; // Assurez-vous d'importer correctement le service Prisma
 import { Command, requiredFields } from './entities/command.entity'; // Assurez-vous d'importer correctement l'entité Command
-
+import { MailService } from 'src/mail/mail.service';
 const prisma = new PrismaClient();
 
 @Injectable()
 export class CommandService {
+  constructor(private mailService: MailService) {}
   async findAll() {
     const commands = await prisma.command.findMany({
       include: {
@@ -216,6 +217,19 @@ export class CommandService {
         include: {
           products: true, // Inclure les produits associés à chaque commande
         },
+      });
+
+      const user = await prisma.user.findUnique({
+        where: {
+          id: command.userId,
+        },
+      });
+
+      await this.mailService.sendRefundRequestEmail({
+        firstName: user.firstName,
+        lastName: user.name,
+        email: user.mail,
+        orderNumber: command.orderNumber,
       });
 
       return {
