@@ -76,13 +76,28 @@ export class CommandController {
     return this.commandService.create(command, userId);
   }
 
+  @Get('findAllByUser')
+  @ApiOperation({
+    summary: 'Find all commands by user',
+    description: 'Retrieves all commands by user.',
+  })
+  @UseGuards(AuthGuard)
+  async findAllByUser(@Request() req) {
+    const userId = req['user']?.id;
+    if (!userId) {
+      return { message: 'User ID not found in the token', data: null };
+    }
+
+    return this.commandService.findAllCommandsByUserId(userId);
+  }
+
   @Get('findById')
   @ApiOperation({
     summary: 'Find command by ID',
     description: 'Retrieves a command by its ID.',
   })
   @ApiQuery({ name: 'id', required: true, type: 'number' })
-  async findById(@Query('id') id: number) {
+  async findById(@Query('id') id: string) {
     return this.commandService.findById(id);
   }
 

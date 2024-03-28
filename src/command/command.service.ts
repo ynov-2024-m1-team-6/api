@@ -64,10 +64,11 @@ export class CommandService {
     };
   }
 
-  async findById(id: number) {
+  async findById(id: string) {
+    const idParse = parseInt(id);
     const command = await prisma.command.findUnique({
       where: {
-        id,
+        id: idParse,
       },
       include: {
         products: true,
