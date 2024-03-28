@@ -16,13 +16,10 @@ export class StripeController {
   @Post('/session')
   async createSession(
     @Request() req,
-    @Body() data: { email: string; price: number; quantity: number },
+    @Body()
+    data: { email: string; commandId: number },
   ) {
     const userId = req['user']?.id;
-    return this.stripeService.createSession(
-      data.email,
-      data.price,
-      data.quantity,
-    );
+    return this.stripeService.createSession(data.email, data.commandId);
   }
 }
