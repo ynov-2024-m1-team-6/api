@@ -8,18 +8,19 @@ datasource db {
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   name        String
   firstName   String
-  mail        String   @unique
+  mail        String    @unique
   password    String
   adress      String
   zipCode     Int
   city        String
   phoneNumber Int
-  isAdmin     Boolean  @default(false)
+  isAdmin     Boolean   @default(false)
   wishlist    String[]
   cart        String[]
+  Command     Command[]
 }
 
 model Product {
@@ -41,6 +42,8 @@ model Command {
   products    Product[]     @relation("CommandToProduct")
   date        DateTime      @default(now())
   status      CommandStatus @default(PAID)
+  userId      Int // Clé étrangère vers l'utilisateur
+  user        User          @relation(fields: [userId], references: [id]) // Relation avec l'utilisateur
 }
 
 enum CommandStatus {

@@ -2,7 +2,6 @@ import { Injectable, HttpException } from '@nestjs/common';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET);
-
 @Injectable()
 export class StripeService {
   async createSession(email: string, price: number, quantity: number) {
