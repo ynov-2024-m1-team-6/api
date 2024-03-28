@@ -4,11 +4,12 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { MailService } from '../mail/mail.service';
 const prisma = new PrismaClient();
+
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
-    private mailerService: MailService,
+    private mailService: MailService,
   ) {}
 
   async register(data: User) {
@@ -49,7 +50,7 @@ export class AuthService {
       });
 
       try {
-        await this.mailerService.sendWelcomeEmail({
+        await this.mailService.sendWelcomeEmail({
           firstName: data.firstName,
           lastName: data.name,
           email: data.mail,
@@ -58,7 +59,7 @@ export class AuthService {
         return error;
       }
       try {
-        await this.mailerService.sendRegistrationEmailToAdmin({
+        await this.mailService.sendRegistrationEmailToAdmin({
           firstName: data.firstName,
           lastName: data.name,
           email: data.mail,
