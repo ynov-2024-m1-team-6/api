@@ -7,6 +7,13 @@ datasource db {
   url      = "postgres://mystore_4cbc_user:sq1zRtkwDGVUwpbnVCfmIC3CKQAs9cYp@dpg-cn3ct7gl5elc73cn6vu0-a.oregon-postgres.render.com/mystore_4cbc" //env("DATABASE_URL")
 }
 
+enum CommandStatus {
+  CREATED
+  PAID
+  REIMBURSEMENT
+  REFUNDED
+}
+
 model User {
   id          Int       @id @default(autoincrement())
   name        String
@@ -32,7 +39,7 @@ model Product {
   weight      Float
   ratio       String
   thumbnail   String
-  active      Boolean   @default(false)
+  active      Boolean   @default(true)
   commands    Command[] @relation("CommandToProduct")
 }
 
@@ -41,13 +48,8 @@ model Command {
   orderNumber String        @default("00000000")
   products    Product[]     @relation("CommandToProduct")
   date        DateTime      @default(now())
-  status      CommandStatus @default(PAID)
+  status      CommandStatus @default(CREATED)
+  email       String
   userId      Int // Clé étrangère vers l'utilisateur
   user        User          @relation(fields: [userId], references: [id]) // Relation avec l'utilisateur
-}
-
-enum CommandStatus {
-  PAID
-  REIMBURSEMENT
-  REFUNDED
 }
