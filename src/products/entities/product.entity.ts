@@ -69,10 +69,8 @@ export class Product {
 
 export class CreateProduct extends OmitType(Product, [
   'id',
-  'active',
 ] as const) {}
 
 export class UpdateProduct extends OmitType(Product, [
   'id',
-  'active',
 ] as const) {}

@@ -93,6 +93,19 @@ export class CommandService {
         }
         
         try {
+            const user = await prisma.user.findUnique({
+                where: {
+                    id: userId,
+                }
+            });
+
+            if (!user) {
+                return {
+                    message: 'User not found',
+                    data: null,
+                };
+            }
+
             const newCommand = await prisma.command.create({
                 data: {
                     orderNumber: command.orderNumber,
@@ -100,7 +113,11 @@ export class CommandService {
                     products: {
                         connect: command.products.map(productId => ({ id: productId.id }))
                     },
-                    userId: userId
+                    userId: userId,
+                    email: user.mail,
+                },
+                include: {
+                    products: true // Inclure les produits associés à chaque commande
                 }
             });
     
@@ -109,8 +126,6 @@ export class CommandService {
                 data: newCommand,
               };
         } catch (error) {
-            console.log(error);
-            
             return {
                 message: 'An error occurred during command creation.',
                 data: null,
@@ -151,6 +166,9 @@ export class CommandService {
             const command = await prisma.command.findUnique({
                 where: {
                     id,
+                },
+                include: {
+                    products: true // Inclure les produits associés à chaque commande
                 }
             });
 
@@ -161,8 +179,8 @@ export class CommandService {
                 };
             }
 
-            console.log(command.id, userId);
-            
+            // filter les produits dans updatedCommand.products qui sont déjà dans command.products
+            updatedCommand.products = updatedCommand.products.filter(product => !command.products.some(p => p.id === product.id));
 
             if (command.userId !== userId) {
                 return {
@@ -178,21 +196,19 @@ export class CommandService {
                 data: {
                     orderNumber: updatedCommand.orderNumber,
                     products: {
-                        updateMany: updatedCommand.products.map(product => ({
-                            where: { id: product.id }, 
-                            data: { ...product } 
-                        }))
+                        connect: updatedCommand.products.map(productId => ({ id: productId.id }))
                     }
+                },
+                include: {
+                    products: true // Inclure les produits associés à chaque commande
                 }
             });
 
             return {
                 message: commandUpdated != null ? 'Command updated successfully' : 'Command not found',
-                data: command,
+                data: commandUpdated,
             };
         } catch (error) {
-            console.log(error);
-            
             return {
                 message: 'An error occurred during command update.',
                 data: null,

@@ -1,9 +1,8 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, UnsupportedMediaTypeException, Query, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Delete, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
-import { Command, CreateCommand, UpdateCommand } from './entities/command.entity';
+import { CreateCommand, UpdateCommand } from './entities/command.entity';
 import { CommandService } from './command.service';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { parse } from 'path';
 
 @ApiBearerAuth()
 @Controller('command')
@@ -13,6 +12,8 @@ export class CommandController {
 
     @Get("getCommands")
     @ApiOperation({ summary: 'Get all commands', description: 'Retrieves all commands.' })
+    @UseGuards(AuthGuard)
+    //ajouter authguard
     getAllCommands() {
         return this.commandService.findAll();
     }
@@ -28,6 +29,7 @@ export class CommandController {
     @Get('getCommand')
     @ApiOperation({ summary: 'Get command by ID', description: 'Retrieves a command by its ID.' })
     getOne(@Query('id') id: string) {
+        //ajouter les verifs qu'il est admin ou c'est sa commande
         return this.commandService.findOne(parseInt(id));
     }
 
