@@ -76,6 +76,10 @@ export class MailService {
       return { message: 'error', error };
     }
   }
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 733de9a (feat(add): order, refund and admin mails)
 
   async sendRegistrationEmailToAdmin(data: {
     email: string;
@@ -299,4 +303,9 @@ export class MailService {
       return { message: 'error', error };
     }
   }
+<<<<<<< HEAD
+=======
+>>>>>>> 84f7c3c (feat(add): register mail)
+=======
+>>>>>>> 733de9a (feat(add): order, refund and admin mails)
 }
