@@ -161,6 +161,9 @@ export class CommandService {
                 };
             }
 
+            console.log(command.id, userId);
+            
+
             if (command.userId !== userId) {
                 return {
                     message: 'You are not authorized to update this command',
@@ -175,7 +178,10 @@ export class CommandService {
                 data: {
                     orderNumber: updatedCommand.orderNumber,
                     products: {
-                        create: updatedCommand.products
+                        updateMany: updatedCommand.products.map(product => ({
+                            where: { id: product.id }, 
+                            data: { ...product } 
+                        }))
                     }
                 }
             });
