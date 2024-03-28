@@ -31,14 +31,18 @@ export class Command {
 
     @ApiProperty({ description: "User ID" })
     userId?: number;
+
+    @ApiProperty({ description: "Email of the user" })
+    email?: string;
 }
 
-export class CreateCommand extends OmitType(Command, ['id', 'orderNumber', 'status', 'date', 'userId'] as const) {}
+export class CreateCommand extends OmitType(Command, ['id', 'orderNumber', 'status', 'date', 'userId', 'email'] as const) {}
 
-export class UpdateCommand extends OmitType(Command, ['id', 'status', 'date', 'userId'] as const) {}
+export class UpdateCommand extends OmitType(Command, ['id', 'status', 'date', 'userId', 'email'] as const) {}
 
 export enum CommandStatus {
     PAID = 'PAID',
     REIMBURSEMENT = 'REIMBURSEMENT',
     REFUNDED = 'REFUNDED',
+    CREATED = 'CREATED',
 }
