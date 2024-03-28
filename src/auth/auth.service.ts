@@ -52,6 +52,7 @@ export class AuthService {
         await this.mailerService.sendWelcomeEmail({
           firstName: data.firstName,
           lastName: data.name,
+<<<<<<< HEAD
           email: data.mail,
         });
       } catch (error) {
@@ -62,6 +63,9 @@ export class AuthService {
           firstName: data.firstName,
           lastName: data.name,
           email: data.mail,
+=======
+          mail: data.mail,
+>>>>>>> 84f7c3c (feat(add): register mail)
         });
       } catch (error) {
         return error;
