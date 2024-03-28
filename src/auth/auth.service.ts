@@ -53,6 +53,9 @@ export class AuthService {
           firstName: data.firstName,
           lastName: data.name,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 733de9a (feat(add): order, refund and admin mails)
           email: data.mail,
         });
       } catch (error) {
@@ -63,9 +66,12 @@ export class AuthService {
           firstName: data.firstName,
           lastName: data.name,
           email: data.mail,
+<<<<<<< HEAD
 =======
           mail: data.mail,
 >>>>>>> 84f7c3c (feat(add): register mail)
+=======
+>>>>>>> 733de9a (feat(add): order, refund and admin mails)
         });
       } catch (error) {
         return error;

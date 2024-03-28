@@ -10,7 +10,6 @@ import { CartModule } from './cart/cart.module';
 import { ProductsModule } from './products/products.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { MailModule } from './mail/mail.module';
-
 @Module({
   imports: [
     MailModule,
