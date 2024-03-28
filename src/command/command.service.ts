@@ -179,7 +179,6 @@ export class CommandService {
                     }
                 }
             });
-            console.log('test7');
 
             return {
                 message: commandUpdated != null ? 'Command updated successfully' : 'Command not found',
