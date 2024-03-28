@@ -72,4 +72,15 @@ export class UserController {
   async deleteUser(@Param('id') id: string): Promise<{ message: string }> {
     return this.userService.deleteUser(parseInt(id));
   }
+
+  @Get('/getMyCommands')
+  @ApiTags('User')
+  @ApiOperation({ summary: 'Get all commands from user' })
+  async getMyCommands(@Request() req): Promise<{ message: string; data: any }> {
+    const userId = req['user']?.id; // Récupérer l'ID du token depuis la requête
+    if (!userId) {
+      return { message: 'User ID not found in the token', data: null };
+    }
+    return this.userService.getMyCommands(userId);
+  }
 }
