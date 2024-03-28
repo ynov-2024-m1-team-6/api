@@ -46,98 +46,88 @@ export class CommandService {
     };
   }
 
-  async findByOrderNumber(orderNumber: string) {
-    if (orderNumber === '00000000') {
-      return {
-        message: 'Invalid order number. Please provide a valid order number.',
-        data: null,
-      };
-    }
+  async findByFilter(filter: any) {
     try {
-      const command = await prisma.command.findFirst({
-        where: {
-          orderNumber,
-        },
-        include: {
-          products: true, // Inclure les produits associés à chaque commande
-        },
-      });
+        const command = await prisma.command.findMany({
+            where: filter,
+            include: {
+                products: true
+            }
+        });
 
-      return {
-        message:
-          command != null ? 'Command found successfully' : 'Command not found',
-        data: command,
-      };
+        return {
+            message: command != null ? 'Command found successfully' : 'Command not found',
+            data: command,
+          };
     } catch (error) {
-      return {
-        message: 'An error occurred during command retrieval.',
-        data: null,
-      };
+        return {
+            message: 'An error occurred during command retrieval.',
+            data: null,
+        };
+        }
     }
-  }
 
-  async create(command: Command, userId: number) {
+async create(command: Command, userId: number) {
+    
     // If the request body is empty, return an error message
     if (!command || Object.keys(command).length === 0) {
-      return {
-        message: 'Command creation failed. Request body is empty.',
-        data: null,
-      };
+        return {
+            message: 'Command creation failed. Request body is empty.',
+            data: null,
+        };
     }
 
     // Check if all required fields are present in the request body
-    const missingFields = requiredFields.filter((field) => !(field in command));
-
+    const missingFields = requiredFields.filter(field => !(field in command));
+    
     // If any required fields are missing, return an error message
     if (missingFields.length > 0) {
-      return {
-        message: `Command creation failed. Required fields are missing`,
-        data: missingFields,
-      };
-    }
-
-    try {
-      const user = await prisma.user.findUnique({
-        where: {
-          id: userId,
-        },
-      });
-
-      if (!user) {
         return {
-          message: 'User not found',
-          data: null,
+            message: `Command creation failed. Required fields are missing`,
+            data: missingFields,
         };
-      }
-
-      const newCommand = await prisma.command.create({
-        data: {
-          orderNumber: command.orderNumber,
-          status: command.status,
-          products: {
-            connect: command.products.map((productId) => ({
-              id: productId.id,
-            })),
-          },
-          userId: userId,
-          email: user.mail,
-        },
-        include: {
-          products: true, // Inclure les produits associés à chaque commande
-        },
-      });
-
-      return {
-        message: 'Command created successfully',
-        data: newCommand,
-      };
-    } catch (error) {
-      return {
-        message: 'An error occurred during command creation.',
-        data: null,
-      };
     }
-  }
+    
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId,
+            }
+        });
+
+        if (!user) {
+            return {
+                message: 'User not found',
+                data: null,
+            };
+        }
+
+        const newCommand = await prisma.command.create({
+            data: {
+                orderNumber: command.orderNumber,
+                status: command.status,
+                products: {
+                    connect: command.products.map(productId => ({ id: productId.id }))
+                },
+                userId: userId,
+                email: user.mail,
+            },
+            include: {
+                products: true // Inclure les produits associés à chaque commande
+            }
+        });
+
+        return {
+            message: 'Command created successfully',
+            data: newCommand,
+          };
+    } catch (error) {
+        return {
+            message: 'An error occurred during command creation.',
+            data: null,
+        };
+    }
+}
 
   async refund(id: number) {
     // If the ID is not a number, return an error message
@@ -275,37 +265,6 @@ export class CommandService {
     } catch (error) {
       return {
         message: 'An error occurred during command update.',
-        data: null,
-      };
-    }
-  }
-
-  async delete(id: number) {
-    // If the ID is not a number, return an error message
-    if (isNaN(id)) {
-      return {
-        message: 'Invalid ID. Please provide a valid numeric ID.',
-        data: null,
-      };
-    }
-
-    try {
-      const command = await prisma.command.delete({
-        where: {
-          id,
-        },
-      });
-
-      return {
-        message:
-          command != null
-            ? 'Command deleted successfully'
-            : 'Command not found',
-        data: command,
-      };
-    } catch (error) {
-      return {
-        message: 'An error occurred during command deletion.',
         data: null,
       };
     }

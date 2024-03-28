@@ -22,95 +22,70 @@ import { AuthGuard } from 'src/auth/auth.guard';
 
 @ApiBearerAuth()
 @Controller('command')
-@ApiTags('commands') // Tags pour regrouper les opérations liées aux commandes dans Swagger
+@ApiTags('commands')
 export class CommandController {
   constructor(private commandService: CommandService) {}
 
-  @Get('getCommands')
-  @ApiOperation({
-    summary: 'Get all commands',
-    description: 'Retrieves all commands.',
-  })
-  @UseGuards(AuthGuard)
-  //ajouter authguard
-  getAllCommands() {
-    return this.commandService.findAll();
-  }
-
-  @Get('getCommandByOrderNumber')
-  @ApiOperation({
-    summary: 'Get command by order number',
-    description: 'Retrieves a command by its order number.',
-  })
-  @ApiQuery({ name: 'orderNumber', required: true, type: 'string' })
-  getCommandByOrderNumber(@Query('orderNumber') orderNumber: string) {
-    return this.commandService.findByOrderNumber(orderNumber);
-  }
-
-  @Get('getCommand')
-  @ApiOperation({
-    summary: 'Get command by ID',
-    description: 'Retrieves a command by its ID.',
-  })
-  getOne(@Query('id') id: string) {
-    //ajouter les verifs qu'il est admin ou c'est sa commande
-    return this.commandService.findOne(parseInt(id));
-  }
-
-  @Post('create')
-  @ApiOperation({
-    summary: 'Create new command',
-    description: 'Creates a new command.',
-  })
-  @ApiBody({ type: CreateCommand })
-  @UseGuards(AuthGuard)
-  create(@Body() command: CreateCommand, @Request() req) {
-    const userId = req['user']?.id; // Récupérer l'ID du token depuis la requête
-    if (!userId) {
-      return { message: 'User ID not found in the token', data: null };
+    @Get("getCommands")
+    @ApiOperation({ summary: 'Get all commands', description: 'Retrieves all commands.' })
+    @UseGuards(AuthGuard)
+    getAllCommands() {
+        return this.commandService.findAll();
     }
 
-    return this.commandService.create(command, userId);
-  }
-
-  @Put('update')
-  @ApiOperation({
-    summary: 'Update command',
-    description: 'Updates an existing command.',
-  })
-  @ApiQuery({ name: 'id', description: 'ID of the command to update' })
-  @ApiBody({ type: UpdateCommand })
-  @UseGuards(AuthGuard)
-  update(
-    @Query('id') id: string,
-    @Body() updatedCommand: UpdateCommand,
-    @Request() req,
-  ) {
-    const userId = req['user']?.id; // Récupérer l'ID du token depuis la requête
-    if (!userId) {
-      return { message: 'User ID not found in the token', data: null };
+    @Get('getCommandByFilter')
+    @ApiOperation({ summary: 'Get command by filter', description: 'Retrieves a command by the filter specified.' })
+    @ApiQuery({ name: 'name', required: true, type: 'string' })
+    @ApiQuery({ name: 'value', required: true, type: 'string' })
+    @UseGuards(AuthGuard)
+    getCommandByFilter(@Query('name') name: string, @Query('value') value: string ){
+        const filter = {
+            [name]: value
+        };
+        return this.commandService.findByFilter(filter);
     }
 
-    return this.commandService.update(parseInt(id), updatedCommand, userId);
-  }
+    @Get('getCommand')
+    @ApiOperation({ summary: 'Get command by ID', description: 'Retrieves a command by its ID.' })
+    @UseGuards(AuthGuard)
+    getOne(@Query('id') id: string) {
+        return this.commandService.findOne(parseInt(id));
+    }
 
-  @Delete('delete')
-  @ApiOperation({
-    summary: 'Delete command',
-    description: 'Deletes an existing command by its ID.',
-  })
-  @ApiQuery({ name: 'id', description: 'ID of the command to delete' })
-  delete(@Query('id') id: string) {
-    return this.commandService.delete(parseInt(id));
-  }
+    @Post('create')
+    @ApiOperation({ summary: 'Create new command', description: 'Creates a new command.' })
+    @ApiBody({ type: CreateCommand })
+    @UseGuards(AuthGuard)
+    create(@Body() command: CreateCommand, @Request() req){
+        const userId = req['user']?.id;
+        if (!userId) {
+          return { message: 'User ID not found in the token', data: null };
+        }
+        
+        return this.commandService.create(command, userId);
+    }
 
-  @Post('refunded')
-  @ApiOperation({
-    summary: 'Refund command',
-    description: 'Refunds an existing command by its ID.',
-  })
-  @ApiQuery({ name: 'id', description: 'ID of the command to refund' })
-  refund(@Query('id') id: string) {
-    return this.commandService.refund(parseInt(id));
-  }
+    @Put('update')
+    @ApiOperation({ summary: 'Update command', description: 'Updates an existing command.' })
+    @ApiQuery({ name: 'id', description: 'ID of the command to update' })
+    @ApiBody({ type: UpdateCommand })
+    @UseGuards(AuthGuard)
+    update(@Query('id') id: string, @Body() updatedCommand: UpdateCommand, @Request() req){
+        const userId = req['user']?.id;
+        if (!userId) {
+          return { message: 'User ID not found in the token', data: null };
+        }
+
+        return this.commandService.update(parseInt(id), updatedCommand, userId);
+    }
+    
+    @Post('refunded')
+    @ApiOperation({
+        summary: 'Refund command',
+        description: 'Refunds an existing command by its ID.',
+    })
+    @ApiQuery({ name: 'id', description: 'ID of the command to refund' })
+    refund(@Query('id') id: string) {
+        return this.commandService.refund(parseInt(id));
+    }
 }
