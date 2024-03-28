@@ -117,9 +117,21 @@ async create(command: Command, userId: number) {
             }
         });
 
+        const commandN = await prisma.command.update({
+            where: {
+                id: newCommand.id
+            },
+            data: {
+                orderNumber: `CMD-${newCommand.id}`
+            },
+            include: {
+                products: true
+            }
+        })
+
         return {
             message: 'Command created successfully',
-            data: newCommand,
+            data: commandN,
           };
     } catch (error) {
         return {
@@ -129,7 +141,7 @@ async create(command: Command, userId: number) {
     }
 }
 
-  async refund(id: number) {
+  async reimbursement(id: number) {
     // If the ID is not a number, return an error message
     if (isNaN(id)) {
       return {
@@ -157,7 +169,7 @@ async create(command: Command, userId: number) {
           id: command.id,
         },
         data: {
-          status: 'REFUNDED',
+          status: 'REIMBURSEMENT',
         },
         include: {
           products: true, // Inclure les produits associés à chaque commande
@@ -167,7 +179,7 @@ async create(command: Command, userId: number) {
       return {
         message:
           commandRefunded != null
-            ? 'Command refunded successfully'
+            ? 'Command reimbursement initiated'
             : 'Command not found',
         data: commandRefunded,
       };

@@ -79,13 +79,13 @@ export class CommandController {
         return this.commandService.update(parseInt(id), updatedCommand, userId);
     }
     
-    @Post('refunded')
+    @Post('reimbursement')
     @ApiOperation({
-        summary: 'Refund command',
+        summary: 'start refund process',
         description: 'Refunds an existing command by its ID.',
     })
     @ApiQuery({ name: 'id', description: 'ID of the command to refund' })
-    refund(@Query('id') id: string) {
-        return this.commandService.refund(parseInt(id));
+    reimbursement(@Query('id') id: string) {
+        return this.commandService.reimbursement(parseInt(id));
     }
 }
