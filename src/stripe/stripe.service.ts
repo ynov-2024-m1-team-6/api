@@ -1,5 +1,6 @@
 import { Injectable, HttpException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client'; // Assurez-vous d'importer correctement le service Prisma
+import { parse } from 'path';
 import { CommandService } from 'src/command/command.service';
 import { ProductsService } from 'src/products/products.service';
 import Stripe from 'stripe';
@@ -40,7 +41,6 @@ export class StripeService {
       products: products,
     };
     const command = await this.commandService.create(commandData, userId);
-    console.log(command);
     const totalPrice = products
       .map((product) => product.price)
       .reduce((a, b) => a + b)
@@ -54,10 +54,6 @@ export class StripeService {
       price: product.price;
       username: product.username;
     });
-
-    console.log(products);
-    console.log(totalPrice);
-    console.log(quantity);
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -75,6 +71,7 @@ export class StripeService {
         },
       ],
       mode: 'payment',
+      metadata: { commandId: command.data['id'] },
       success_url: 'https://localhost:3000/stripe/webhook',
       cancel_url: 'https://example.com/cancel',
     });
@@ -107,12 +104,11 @@ export class StripeService {
       throw new Error(`Webhook Error: ${err.message}`);
     }
     switch (event.type) {
-      case 'payment_intent.succeeded':
-        const paymentIntentSucceeded = event.data.object;
-        this.handleSuccessfulPayment(paymentIntentSucceeded);
-        break;
       case 'charge.refunded':
         this.handleRefund(event.data.object);
+      case 'checkout.session.completed':
+        this.handleSuccessfulPayment(event.data.object);
+        break;
       default:
         console.log(`Unhandled event type ${event.type}`);
     }
@@ -121,14 +117,33 @@ export class StripeService {
   }
 
   private async handleSuccessfulPayment(payment) {
-    console.log('Payment was successful', payment.id);
-    //update le model commande de la base avec le status paid
-    //add le paymentIntentId dans la commande
+    const commandId = parseInt(payment.metadata.commandId);
+    const command = await prisma.command.update({
+      where: {
+        id: commandId,
+      },
+      data: {
+        status: 'PAID',
+        orderNumber: payment.payment_intent,
+      },
+    });
+    //envoyer le mail de confirmation
   }
 
   private async handleRefund(refund) {
-    console.log('Refund was successful', refund.payment_intent);
-    //update le model commande de la base avec le status refunded
+    const refundedCommand = await prisma.command.findFirst({
+      where: {
+        orderNumber: refund.payment_intent,
+      },
+    });
+    await prisma.command.update({
+      where: {
+        id: refundedCommand.id,
+      },
+      data: {
+        status: 'REFUNDED',
+      },
+    });
     //envoyer le mail de refund
   }
 }
