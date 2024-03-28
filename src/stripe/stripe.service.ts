@@ -84,6 +84,20 @@ export class StripeService {
     if (paymentIntentId === null) {
       throw new HttpException('Payment intent ID is required.', 400);
     }
+    const refundedCommand = await prisma.command.findFirst({
+      where: {
+        orderNumber: paymentIntentId,
+      },
+    });
+    await prisma.command.update({
+      where: {
+        id: refundedCommand.id,
+      },
+      data: {
+        status: 'REFUNDED',
+      },
+    });
+   
     const session = await stripe.refunds.create({
       payment_intent: paymentIntentId,
     });
@@ -163,6 +177,6 @@ export class StripeService {
         status: 'REFUNDED',
       },
     });
-    //envoyer le mail de refund
+   
   }
 }
