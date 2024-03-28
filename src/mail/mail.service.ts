@@ -140,7 +140,7 @@ export class MailService {
     firstName: string;
     lastName: string;
     email: string;
-    orderNumber: number;
+    orderNumber: string;
     products: any[];
   }) {
     try {
@@ -148,7 +148,7 @@ export class MailService {
         .map(
           (product) => `
         <div class="product">
-          <img src="${product.image}" alt="${product.name}">
+          <img src="${product.thumbnail}" alt="${product.name}">
           <div class="product-details">
             <p class="product-name">${product.name}</p>
             <p class="product-description">${product.description}</p>
@@ -243,7 +243,7 @@ export class MailService {
     email: string;
     firstName: string;
     lastName: string;
-    orderNumber: number;
+    orderNumber: string;
   }) {
     try {
       await this.mailerService.sendMail({
