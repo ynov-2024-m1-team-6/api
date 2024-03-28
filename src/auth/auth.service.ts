@@ -52,7 +52,16 @@ export class AuthService {
         await this.mailerService.sendWelcomeEmail({
           firstName: data.firstName,
           lastName: data.name,
-          mail: data.mail,
+          email: data.mail,
+        });
+      } catch (error) {
+        return error;
+      }
+      try {
+        await this.mailerService.sendRegistrationEmailToAdmin({
+          firstName: data.firstName,
+          lastName: data.name,
+          email: data.mail,
         });
       } catch (error) {
         return error;

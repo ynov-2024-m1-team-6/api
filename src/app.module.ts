@@ -9,9 +9,10 @@ import { StripeModule } from './stripe/stripe.module';
 import { CartModule } from './cart/cart.module';
 import { ProductsModule } from './products/products.module';
 import { MailerModule } from '@nestjs-modules/mailer';
-
+import { MailModule } from './mail/mail.module';
 @Module({
   imports: [
+    MailModule,
     AuthModule,
     UserModule,
     WishlistModule,
@@ -26,11 +27,11 @@ import { MailerModule } from '@nestjs-modules/mailer';
         secure: false,
         auth: {
           user: 'uberbagarreynov@gmail.com',
-          pass: 'tpqfjtrqmbxkxgem',
+          pass: process.env.MAIL_PASSWORD,
         },
       },
       defaults: {
-        from: 'uberbagarre@gmail.com',
+        from: 'uberbagarreynov@gmail.com',
       },
     }),
   ],
