@@ -3,8 +3,10 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
-  
+  const app = await NestFactory.create(AppModule, {
+    cors: true,
+    rawBody: true,
+  });
   const config = new DocumentBuilder()
     .setTitle('Uber Bagarre API')
     .setDescription('Uber Bagarre API description')
