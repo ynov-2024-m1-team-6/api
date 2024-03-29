@@ -74,8 +74,8 @@ export class StripeService {
       ],
       mode: 'payment',
       metadata: { commandId: command.data['id'] },
-      success_url: `https://uber-bagarre.vercel.app/payment/success?id=${command.data['id']}`,
-      cancel_url: 'https://uber-bagarre.vercel.app/payment/failed',
+      success_url: `https://uberbagarre.netlify.app/payment/success?id=${command.data['id']}`,
+      cancel_url: 'https://uberbagarre.netlify.app/payment/failed',
     });
     return session.url;
   }
