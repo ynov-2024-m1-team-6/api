@@ -95,9 +95,9 @@ export class StripeService {
       }
   
       console.log(refundedCommand);
-  
+      const idfloatToInteger = parseInt(refundedCommand.id as any);
       await prisma.command.update({
-        where: { id: refundedCommand.id },
+        where: { id: idfloatToInteger },
         data: { status: 'REFUNDED' },
       });
       const session = await stripe.refunds.create({ payment_intent: paymentIntentId });
