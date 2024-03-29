@@ -68,31 +68,36 @@ export class StripeService {
   }
 
   async refundPayment(paymentIntentId: string) {
-    if (paymentIntentId === null) {
+    if (!paymentIntentId) { // Vérifie si paymentIntentId est présent
       throw new HttpException('Payment intent ID is required.', 400);
     }
-    const refundedCommand = await prisma.command.findFirst({
-      where: {
-        orderNumber: paymentIntentId,
-      },
-    });
-    await prisma.command.update({
-      where: {
-        id: refundedCommand.id,
-      },
-      data: {
-        status: 'REFUNDED',
-      },
-    });
 
-    const session = await stripe.refunds.create({
-      payment_intent: paymentIntentId,
-    });
-    if (!session) {
-      throw new HttpException('Refund failed.', 400);
+    try {
+      const refundedCommand = await prisma.command.findFirst({
+        where: { orderNumber: paymentIntentId },
+      });
+  
+      if (!refundedCommand) {
+        throw new HttpException('Command not found.', 404);
+      }
+  
+      console.log(refundedCommand);
+  
+      await prisma.command.update({
+        where: { id: refundedCommand.id },
+        data: { status: 'REFUNDED' },
+      });
+      const session = await stripe.refunds.create({ payment_intent: paymentIntentId });
+      if (!session) {
+        throw new HttpException('Refund failed.', 400);
+      }
+      return 'Refund successful';
+    } catch (error) {
+      console.error(error);
+      throw new HttpException('An error occurred during the refund process.', 500);
     }
-    return 'Refund successful';
-  }
+};
+
 
   async handleWebhook(
     requestBody: Buffer,
