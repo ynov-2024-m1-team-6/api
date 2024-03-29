@@ -43,35 +43,22 @@ export class StripeService {
       products: products,
     };
     const command = await this.commandService.create(commandData, userId);
-    const totalPrice = products
-      .map((product) => product.price)
-      .reduce((a, b) => a + b)
-      .toFixed(2);
-    const quantity = products.length;
-    const price = parseInt(totalPrice) * 100;
-
-    const filteredProducts = products.map((product) => {
-      id: product.id;
-      description: product.description;
-      price: product.price;
-      username: product.username;
-    });
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       customer_email: email,
-      line_items: [
-        {
-          price_data: {
-            currency: 'eur',
-            product_data: {
-              name: 'Bagarreur',
-            },
-            unit_amount: price,
+      line_items: products.map((product) => ({
+        price_data: {
+          currency: 'eur',
+          product_data: {
+            name: product.username,
+            description: product.description,
+            images: [`${product.thumbnail}?size=200x200`], // Spécifiez la taille de l'image ici
           },
-          quantity,
+          unit_amount: product.price * 100,
         },
-      ],
+        quantity: 1,
+      })),
       mode: 'payment',
       metadata: { commandId: command.data['id'] },
       success_url: `https://uber-bagarre.vercel.app/payment/success?id=${command.data['id']}`,
@@ -84,7 +71,7 @@ export class StripeService {
     if (!paymentIntentId) { // Vérifie si paymentIntentId est présent
       throw new HttpException('Payment intent ID is required.', 400);
     }
-  
+
     try {
       const refundedCommand = await prisma.command.findFirst({
         where: { orderNumber: paymentIntentId },
@@ -182,6 +169,5 @@ export class StripeService {
         status: 'REFUNDED',
       },
     });
-   
   }
 }
