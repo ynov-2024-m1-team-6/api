@@ -148,9 +148,9 @@ export class MailService {
         .map(
           (product) => `
         <div class="product">
-          <img src="${product.thumbnail}" alt="${product.name}">
+          <img src="${product.thumbnail}" alt="${product.username}">
           <div class="product-details">
-            <p class="product-name">${product.name}</p>
+            <p class="product-name">${product.username}</p>
             <p class="product-description">${product.description}</p>
             <p class="product-price">${product.price} EUR</p>
           </div>
@@ -247,7 +247,7 @@ export class MailService {
   }) {
     try {
       await this.mailerService.sendMail({
-        to: 'bastienselot@gmail.com', // Adresse e-mail de l'administrateur
+        to: 'uberbagarreynov@gmail.com',
         subject: `Refund Request for Order #${data.orderNumber} from ${data.firstName} ${data.lastName}`,
         html: `
           <!DOCTYPE html>
