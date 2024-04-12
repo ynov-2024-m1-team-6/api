@@ -43,10 +43,11 @@ export class AuthService {
 
       data.password = hashedPassword;
 
-      await prisma.user.create({ data });
+      const userCreated = await prisma.user.create({ data });
+      
       const accessToken = this.generateToken({
-        id: data.id,
-        isAdmin: data.isAdmin,
+        id: userCreated.id,
+        isAdmin: userCreated.isAdmin,
       });
 
       try {
