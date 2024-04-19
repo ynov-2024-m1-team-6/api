@@ -14,7 +14,7 @@ export class ProductsMiddleware implements NestMiddleware {
 
   use(req: Request, res: Response, next: NextFunction): void {
     const token = this.extractTokenFromHeader(req);
-
+    
     if (!token) {
       throw new UnauthorizedException();
     }

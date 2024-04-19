@@ -2,7 +2,7 @@ import { Module, MiddlewareConsumer } from '@nestjs/common';
 import { CommandService } from './command.service';
 import { CommandController } from './command.controller';
 import { MailService } from 'src/mail/mail.service';
-import { ProductsMiddleware } from 'src/products/products.middleware';
+import { CommandsMiddleware } from './command.middleware';
 
 @Module({
   providers: [CommandService, MailService],
@@ -11,12 +11,11 @@ import { ProductsMiddleware } from 'src/products/products.middleware';
 export class CommandModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(ProductsMiddleware)
+      .apply(CommandsMiddleware)
       .exclude(
+        '/getCommands',
         '/getCommandByFilter',
         '/getCommand',
-        '/create',
-        '/reimbursement',
       )
       .forRoutes('command');
   }
