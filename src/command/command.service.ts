@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client'; // Assurez-vous d'importer correctement le service Prisma
 import { Command, requiredFields } from './entities/command.entity'; // Assurez-vous d'importer correctement l'entité Command
 import { MailService } from 'src/mail/mail.service';
@@ -22,30 +22,30 @@ export class CommandService {
     };
   }
 
-  async findOne(id: number) {
-    // If the ID is not a number, return an error message
-    if (isNaN(id)) {
-      return {
-        message: 'Invalid ID. Please provide a valid numeric ID.',
-        data: null,
-      };
-    }
+  // async findOne(id: number) {
+  //   // If the ID is not a number, return an error message
+  //   if (isNaN(id)) {
+  //     return {
+  //       message: 'Invalid ID. Please provide a valid numeric ID.',
+  //       data: null,
+  //     };
+  //   }
 
-    const command = await prisma.command.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        products: true, // Inclure les produits associés à chaque commande
-      },
-    });
+  //   const command = await prisma.command.findUnique({
+  //     where: {
+  //       id,
+  //     },
+  //     include: {
+  //       products: true, // Inclure les produits associés à chaque commande
+  //     },
+  //   });
 
-    return {
-      message:
-        command != null ? 'Command found successfully' : 'Command not found',
-      data: command,
-    };
-  }
+  //   return {
+  //     message:
+  //       command != null ? 'Command found successfully' : 'Command not found',
+  //     data: command,
+  //   };
+  // }
 
   async findAllCommandsByUserId(userId: number) {
     const commands = await prisma.command.findMany({
@@ -65,8 +65,9 @@ export class CommandService {
     };
   }
 
-  async findById(id: string) {
+  async findById(id: string, token: any) {
     const idParse = parseInt(id);
+    
     const command = await prisma.command.findUnique({
       where: {
         id: idParse,
@@ -75,6 +76,11 @@ export class CommandService {
         products: true,
       },
     });
+
+    // If the command exist and the user is not the owner or an admin, return a forbidden error
+    if (command.userId !== token.id && token.isAdmin === false) {
+      throw new ForbiddenException('You are not authorized to view this command');
+    }
     return {
       message:
         command != null ? 'Command found successfully' : 'Command not found',
@@ -248,7 +254,11 @@ export class CommandService {
     }
   }
 
-  async update(id: number, updatedCommand: Command, userId: number) {
+  async update(id: number, updatedCommand: Command, userId: number, token: any) {
+    if (token.isAdmin === false) {
+      throw new ForbiddenException('You are not authorized to update this command');
+    }
+
     // If the ID is not a number, return an error message
     if (isNaN(id)) {
       return {

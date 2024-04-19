@@ -51,14 +51,14 @@ export class CommandController {
     return this.commandService.findByFilter(filter);
   }
 
-  @Get('getCommand')
-  @ApiOperation({
-    summary: 'Get command by ID',
-    description: 'Retrieves a command by its ID.',
-  })
-  async getOne(@Query('id') id: string) {
-    return this.commandService.findOne(parseInt(id));
-  }
+  // @Get('getCommand') //Pas utilisé
+  // @ApiOperation({
+  //   summary: 'Get command by ID',
+  //   description: 'Retrieves a command by its ID.',
+  // })
+  // async getOne(@Query('id') id: string) {
+  //   return this.commandService.findOne(parseInt(id));
+  // }
 
   @Post('create')
   @ApiOperation({
@@ -84,6 +84,7 @@ export class CommandController {
   @UseGuards(AuthGuard)
   async findAllByUser(@Request() req) {
     const userId = req['user']?.id;
+    
     if (!userId) {
       return { message: 'User ID not found in the token', data: null };
     }
@@ -97,8 +98,14 @@ export class CommandController {
     description: 'Retrieves a command by its ID.',
   })
   @ApiQuery({ name: 'id', required: true, type: 'number' })
-  async findById(@Query('id') id: string) {
-    return this.commandService.findById(id);
+  async findById(@Query('id') id: string, @Request() req) {
+    const userId = req['user']?.id;
+    
+    if (!userId) {
+      return { message: 'User ID not found in the token', data: null };
+    }
+
+    return this.commandService.findById(id, req['user']);
   }
 
   @Put('update')
@@ -119,7 +126,7 @@ export class CommandController {
       return { message: 'User ID not found in the token', data: null };
     }
 
-    return this.commandService.update(parseInt(id), updatedCommand, userId);
+    return this.commandService.update(parseInt(id), updatedCommand, userId, req['user']);
   }
 
   @Post('reimbursement')
